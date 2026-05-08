@@ -5,17 +5,20 @@ import pandas as pd
 import apps.reporter as rpt
 from pandas import DataFrame
 from kagglehub import KaggleDatasetAdapter
-from pathlib import Path
 from sklearn.metrics import (confusion_matrix, accuracy_score, precision_score, recall_score, f1_score,
                              mean_absolute_error, mean_squared_error, r2_score)
 
 
-def download_and_extract_from_kagglehub(ds_path: str, ds_file_name: str, db_file_name: str) -> DataFrame | None:
+def download_and_extract_from_kagglehub(ds_path: str,
+                                        ds_file_name: str,
+                                        db_file_name: str,
+                                        update_db: bool = False) -> DataFrame | None:
     """
     Download and extract data from kagglehub
     :param ds_path: path to kaggle dataset
     :param ds_file_name: name of kaggle dataset
-    :param db_file_name: name of database file
+    :param db_file_name: name of a database file
+    :param update_db: update the database
     :return: DataFrame or None
     """
     ds_name = ds_path.split("/")[-1].replace('-', '_')
@@ -31,13 +34,16 @@ def download_and_extract_from_kagglehub(ds_path: str, ds_file_name: str, db_file
             ds_file_name,
         )
 
-        file_path = Path(db_file_name)
-
         # Use only one time to initialize/update data (at first time)
-        if not file_path.exists():
+        if not ds_data.empty:
             conn = sqlite3.connect(db_file_name)
-            ds_data.to_sql(ds_name, conn, if_exists="replace", index=False)
-            conn.close()
+            try:
+                exist_conf = "replace" if update_db else "fail"
+                ds_data.to_sql(ds_name, conn, if_exists=exist_conf, index=False)
+            except ValueError:
+                pass
+            finally:
+                conn.close()
     except Exception:
         conn = sqlite3.connect(db_file_name)
         ds_data = pd.read_sql(f"SELECT * FROM {ds_name}", conn)
