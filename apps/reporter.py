@@ -217,3 +217,38 @@ class Reporter:
         """
         df_data_list = self.get_pd_report(caption)
         display(df_data_list)
+
+    @staticmethod
+    def get_concat_pd_reports(dfs: list[tuple[str, Styler]], caption: str = "") -> Styler:
+        """
+        Generate report data using pandas dataframes
+        :param dfs: a list of pandas dataframes
+        :param caption: caption
+        :return: styler
+        """
+        attribute_col_name, result_col_name = dfs[0][1].data.columns
+        column_name_list = dfs[0][1].data[attribute_col_name].values.tolist()
+        concat_dfs = pd.DataFrame(columns=column_name_list)
+
+        for name, item in dfs:
+            df_results = item.data[result_col_name].values.tolist()
+            concat_dfs.loc[name] = df_results
+
+        pd.set_option('display.max_colwidth', None)
+        concat_dfs = (concat_dfs.style
+        .set_properties(**{
+            'text-align': 'left',
+            'white-space': 'pre-wrap',
+            'border': '1px solid lightgrey'
+        }).set_table_styles([  # type: ignore
+            {"selector": "th", "props": [("text-align", "left")]}
+        ])).set_caption(caption)
+        return concat_dfs
+
+    @staticmethod
+    def print_concat_pd_reports(self, dfs: list[tuple[str, Styler]], caption: str = "") -> None:
+        """
+        Print report data using pandas dataframes
+        """
+        concat_dfs = self.get_concat_pd_reports(dfs, caption)
+        display(concat_dfs)
