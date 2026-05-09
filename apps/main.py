@@ -82,7 +82,7 @@ def calc_class_metrics(y_test, y_pred, y_prob=None) -> None:
     if y_prob is not None:
         # ROC-AUC
         auc = roc_auc_score(y_test, y_prob)
-        rp.add_item("Receiver Operating Characteristic (ROC-AUC)", rp.format_value(auc))
+        rp.add_item("Receiver Operating Characteristic\n(ROC-AUC)", rp.format_value(auc))
         # AP
         ap = average_precision_score(y_test, y_prob)
         rp.add_item("Average Precision (AP)", rp.format_value(ap))
