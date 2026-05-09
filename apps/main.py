@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import apps.reporter as rpt
 from pandas import DataFrame
+from pandas.io.formats.style import Styler
 from kagglehub import KaggleDatasetAdapter
 from sklearn.metrics import (confusion_matrix, accuracy_score, precision_score, recall_score, f1_score,
                              mean_absolute_error, mean_squared_error, r2_score, classification_report,
@@ -53,12 +54,13 @@ def download_and_extract_from_kagglehub(ds_path: str,
     return ds_data
 
 
-def calc_class_metrics(y_test, y_pred, y_prob=None) -> None:
+def calc_class_metrics(y_test, y_pred, y_prob=None) -> Styler:
     """
     Calc and print a classifier metrics
     :param y_test: original target test set
     :param y_pred: predicted set
     :param y_prob: probabilities set
+    :return: DataFrame styler
     """
     rp = rpt.Reporter()
     rp.tolerance = 4
@@ -87,16 +89,21 @@ def calc_class_metrics(y_test, y_pred, y_prob=None) -> None:
         ap = average_precision_score(y_test, y_prob)
         rp.add_item("Average Precision (AP)", rp.format_value(ap))
 
+    df = rp.get_pd_report()
+
     # Print results
     rp.print_pd_report(f"Метрики класифікації")
     print(classification_report(y_test, y_pred))
 
+    return df
 
-def calc_regres_metrics(y_test, y_pred) -> None:
+
+def calc_regres_metrics(y_test, y_pred) -> Styler:
     """
     Calc and print a regressor metrics
     :param y_test: original target test set
     :param y_pred: predicted set
+    :return: DataFrame styler
     """
     rp = rpt.Reporter()
     rp.tolerance = 4
@@ -114,5 +121,9 @@ def calc_regres_metrics(y_test, y_pred) -> None:
     r2 = r2_score(y_test, y_pred)
     rp.add_item("R²\n(коефіцієнт детермінації)", rp.format_value(r2))
 
+    df = rp.get_pd_report()
+
     # Print results
     rp.print_pd_report(f"Метрики регресії")
+
+    return df

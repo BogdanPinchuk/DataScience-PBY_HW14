@@ -197,6 +197,7 @@ class Reporter:
         """
         Generate report data using pandas dataframe
         :param caption: caption
+        :return: styler
         """
         df_data_list = pd.DataFrame(self.data_list, columns=[self.attribute_col, self.result_col])
         pd.set_option('display.max_colwidth', None)
