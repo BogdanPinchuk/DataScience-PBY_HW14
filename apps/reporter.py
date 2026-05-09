@@ -218,7 +218,8 @@ class Reporter:
         df_data_list = self.get_pd_report(caption)
         display(df_data_list)
 
-    def get_concat_pd_reports(self, dfs: list[tuple[str, Styler]], caption: str = "") -> Styler:
+    @staticmethod
+    def get_concat_pd_reports(dfs: list[tuple[str, Styler]], caption: str = "") -> Styler:
         """
         Generate report data using pandas dataframes
         :param dfs: a list of pandas dataframes
@@ -244,9 +245,10 @@ class Reporter:
         ])).set_caption(caption)
         return concat_dfs
 
-    def print_concat_pd_reports(self, dfs: list[tuple[str, Styler]], caption: str = "") -> None:
+    @staticmethod
+    def print_concat_pd_reports(dfs: list[tuple[str, Styler]], caption: str = "") -> None:
         """
         Print report data using pandas dataframes
         """
-        concat_dfs = self.get_concat_pd_reports(dfs, caption)
+        concat_dfs = Reporter.get_concat_pd_reports(dfs, caption)
         display(concat_dfs)
