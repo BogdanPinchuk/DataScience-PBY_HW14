@@ -6,7 +6,8 @@ import apps.reporter as rpt
 from pandas import DataFrame
 from kagglehub import KaggleDatasetAdapter
 from sklearn.metrics import (confusion_matrix, accuracy_score, precision_score, recall_score, f1_score,
-                             mean_absolute_error, mean_squared_error, r2_score)
+                             mean_absolute_error, mean_squared_error, r2_score, classification_report,
+                             roc_auc_score, average_precision_score)
 
 
 def download_and_extract_from_kagglehub(ds_path: str,
@@ -52,7 +53,13 @@ def download_and_extract_from_kagglehub(ds_path: str,
     return ds_data
 
 
-def calc_class_metrics(y_test, y_pred):
+def calc_class_metrics(y_test, y_pred, y_prob=None) -> None:
+    """
+    Calc and print a classifier metrics
+    :param y_test: original target test set
+    :param y_pred: predicted set
+    :param y_prob: probabilities set
+    """
     rp = rpt.Reporter()
     rp.tolerance = 4
 
@@ -72,11 +79,25 @@ def calc_class_metrics(y_test, y_pred):
     f1 = f1_score(y_test, y_pred)
     rp.add_item("F1-score", rp.format_value(f1))
 
+    if y_prob is not None:
+        # ROC-AUC
+        auc = roc_auc_score(y_test, y_prob)
+        rp.add_item("Receiver Operating Characteristic (ROC-AUC)", rp.format_value(auc))
+        # AP
+        ap = average_precision_score(y_test, y_prob)
+        rp.add_item("Average Precision (AP)", rp.format_value(ap))
+
     # Print results
-    rp.print_pd_report(f"Метрики")
+    rp.print_pd_report(f"Метрики класифікації")
+    print(classification_report(y_test, y_pred))
 
 
-def calc_regres_metrics(y_test, y_pred):
+def calc_regres_metrics(y_test, y_pred) -> None:
+    """
+    Calc and print a regressor metrics
+    :param y_test: original target test set
+    :param y_pred: predicted set
+    """
     rp = rpt.Reporter()
     rp.tolerance = 4
 
@@ -94,4 +115,4 @@ def calc_regres_metrics(y_test, y_pred):
     rp.add_item("R²\n(коефіцієнт детермінації)", rp.format_value(r2))
 
     # Print results
-    rp.print_pd_report(f"Метрики")
+    rp.print_pd_report(f"Метрики регресії")
